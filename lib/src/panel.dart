@@ -549,6 +549,7 @@ class _SlidingUpPanelState extends State<SlidingUpPanel>
       final double yPos = _ac.value;
       final double yVel = v.pixelsPerSecond.dy;
       double target;
+      bool bounce = false;
 
       if (!superFling) {
         print('regular flinging');
@@ -573,6 +574,8 @@ class _SlidingUpPanelState extends State<SlidingUpPanel>
         print(
             'super flinging: ${v.pixelsPerSecond.dy.abs()} >= $kSnap * $minFlingVelocity');
 
+        bounce = true; // yay!
+
         if (yVel > 0)
           target = 0; // going down
         else
@@ -581,7 +584,9 @@ class _SlidingUpPanelState extends State<SlidingUpPanel>
 
       print('at $yPos and flinging to $target');
       // don't fling if you're there
-      if (target != yPos) _flingPanelToPosition(target, visualVelocity);
+      if (target == yPos) return;
+
+      _flingPanelToPosition(target, visualVelocity, bounce: bounce);
     }
 
     //_flingPanelToPosition(widget.snapPoint, visualVelocity);
@@ -631,17 +636,31 @@ class _SlidingUpPanelState extends State<SlidingUpPanel>
 
   int _myCounter = 0;
 
-  void _flingPanelToPosition(double targetPos, double velocity) {
+  void _flingPanelToPosition(double targetPos, double velocity,
+      {bool bounce = false}) {
     final count = _myCounter++;
     print('here $count');
+
+    // for now, I can't seem to get it to spring properly and naturally,
+    // so, I'll manually switch the spring configuration depending on superflickiness.
+
+    final springDescription = bounce
+        ? SpringDescription(damping: 15, mass: 1, stiffness: 100)
+        : SpringDescription.withDampingRatio(
+            mass: 1.0,
+            stiffness: 500.0,
+            ratio: 1.0,
+          );
+
     final Simulation simulation = SpringSimulation(
+        springDescription,
         //SpringDescription.withDampingRatio(
         //  mass: 1.0,
         //  stiffness: 500.0,
         //  ratio: 1.0,
         //),
         //SpringDescription(damping: 10, mass: 1, stiffness: 100),  // the default iOS settings -- but doesn't look right at ALL
-        SpringDescription(damping: 15, mass: 1, stiffness: 100),
+        //SpringDescription(damping: 15, mass: 1, stiffness: 100),
         /*
         SpringDescription.withDampingRatio(
           mass: 1.0,
