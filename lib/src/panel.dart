@@ -493,7 +493,8 @@ class _SlidingUpPanelState extends State<SlidingUpPanel>
   void _onGestureEnd(Velocity v) {
     double minFlingVelocity = 365.0;
     //double minFlingVelocity = 0.0;
-    double kSnap = 8;
+    //double kSnap = 8;
+    double kSnap = 800;
 
     //let the current animation finish before starting a new one
     if (_ac.isAnimating) return;
